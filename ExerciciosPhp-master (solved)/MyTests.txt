@@ -1,0 +1,9 @@
+$arrayTeste = textWrap("Se vi mais longe foi por estar de pe sobre ombros de gigantes", 8);
+
+echo count($arrayTeste);
+
+echo "\n";
+
+for ($a = 0; $a < sizeof($arrayTeste); $a++)
+
+	  print_r($arrayTeste[$a]);
