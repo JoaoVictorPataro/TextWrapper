@@ -13,125 +13,93 @@ class Resolucao implements TextWrapInterface {
    */
 	public function textWrap(string $text, int $length): array
   	{
-  		$retArray = [];
+	  	$retArray = [];		//creates return array
 
-		if (empty($text))
+		if (empty($text))			//if the received text is empty
 	    {
-	  		$retArray[0] = NULL;
-	    	return $retArray;
+	  		$retArray[0] = NULL;		//we create a null position in the array
+	    	return $retArray;			//and send it back
 	    }
 
-		$index = -1;        //index that represents which character in the text is the current one
-		$wordIndex = 0;     //index to the word array
-		$lineIndex = 0;     //index to the line array
-		$end = false;
-		$needToCreateWordArray = true;	//represents if it's necessary to create another word array (if it's true,
-										//it's the beggining of the function or we've just ended a word)
+	    $linesIndex = 0;
+	    $currentCharacter;
+	    $index = 0;
+	    $end = false;
+	    $lineArray = [];
+	    $lineIndex = 0;				//iniciates all variables we will need in the function
 
-		$howManyLinesYet = 0;			//indicates how many lines of text have been written yet
+	    while ($end == false)		//and while it is not the end of the proccess
+	    {
+	        $wordArray = [];		//we create a word array to read the current word
+	        $wordIndex = 0;
+
+	        if ($index >= strlen($text))		//if the index is higher than the length of the text
+	            $end = true;			//it means we are over, and then, we set $end to true
+	        else
+	        {
+	            $currentCharacter = substr($text, $index, 1);		//we read the current character
+
+	            while ($currentCharacter != " " && $end == false)		//and if it is not a space and it is not the end
+	            {
+	                $wordArray[$wordIndex] = $currentCharacter;		//we put this character in the word array
+	                $wordIndex++;
+	                $index++;
+
+	                if ($index == strlen($text))			//if we have reached the end of the text
+	                    $end = true;				//we end it all
+	                else
+	                    $currentCharacter = substr($text, $index, 1);
+	            }
+
+	            $index++;		//here, we count one more on the index so the next time we read another character it is not the same
+	            				//as the previous time
+
+	            if ($wordIndex > $length)		//if the word is bigger than the length of the line, we will split it in two or more
+	            {
+	                for ($i = 0; $i < count($wordArray); $i++)		//while we still have to write the word in the lines
+	                {
+	                    $lineArray[$lineIndex] = $wordArray[$i];		//we do it
+	                    $lineIndex++;
+
+	                    if ($lineIndex == $length)		//and if the line is over
+	                    {
+	                        $retArray[$linesIndex] = $lineArray;		//we copy the finished line into the return array
+	                        $linesIndex++;
+	                        unset($lineArray);						//and create another line
+	                        $lineArray = [];
+	                        $lineIndex = 0;
+	                    }
+	                }
+	            }
+	            else						//else, if the current word is not bigger than the line
+	            {
+	                if ($wordIndex > ($length - $lineIndex))		//but bigger than the space we have left in the current line
+	                {
+	                    $retArray[$linesIndex] = $lineArray;		//we copy this 'finished' line to the return array
+	                    $linesIndex++;
+	                    unset($lineArray);						//and create another line
+	                    $lineIndex = 0;
+	                }
+
+	                for ($i = 0; $i < $wordIndex; $i++)
+	                {
+	                    $lineArray[$lineIndex] = $wordArray[$i];			//then, we copy the entire word into the next line
+	                    $lineIndex++;
+	                }
+	            }
 
 
-		while ($end == false)			//while the text received in the function is not over yet, we keep going
-		{
-			$lineArray = [];
-			$lineIndex = 0;
+	            if ($lineIndex < $length - 1 && $end == false)		//and if necessary, we copy the space into the line
+	            {
+	                $lineArray[$lineIndex] = " ";
+	                $lineIndex++;
+	            }
+	        }
+	    }
 
-			for ($i = 0; $i < $length; $i++)		//here we implement a for that will fill the curent line
-			{
-				$index++;
+	    $retArray[$linesIndex] = $lineArray;		//in the end, we copy the last line into the return array
+	    $linesIndex++;
 
-				if ($index == strlen($text))    //if the index represents the length of the received text
-				{
-				    for ($j = 0; $j < sizeof($wordArray); $j++)		//we copy the word array to the line array
-					{
-						$lineArray[$lineIndex] = $wordArray[$j];
-						$lineIndex++;
-					}
-
-					$end = true;		//then, we set $end to true to indicates to the program it should stop
-					$i = $length;		//and end this for
-				}
-				else
-				{
-					$currentCharacter = substr($text, $index, 1);	//$currentCharacter represents the character from the current position of the text
-
-					if ($needToCreateWordArray == true)		//we create a new word array if we need to
-					{
-					    $wordIndex = 0;
-						$wordArray = [];
-						$needToCreateWordArray = false;
-					}
-
-					if ($currentCharacter == " ")						//if the current character is a space, it indicates the word has ended
-					{
-						for ($j = 0; $j < count($wordArray); $j++)		//so we copy the word array to the line array
-						{
-						    $i++;
-							$lineArray[$lineIndex] = $wordArray[$j];
-							$lineIndex++;
-						}
-
-						$lineArray[$lineIndex] = " ";								//copy the space to the line array
-					    $lineIndex++;
-						unset($wordArray);								//and unset the word array, so it can be recreated to the next word
-						$needToCreateWordArray = true;
-					}
-					else											//if the current character is not a space
-					{
-						if ($i == ($length - 1))		//we verify if this is the last position of the line
-						{
-							$wordArray[$wordIndex] = $currentCharacter;     //we copy this last character to the word array
-							$wordIndex++;
-
-							$auxArray = [];
-
-							for ($r = 0; $r < count($wordArray); $r++)
-							    $auxArray[$r] = $wordArray[$r];
-
-
-
-							$auxIndex = $wordIndex;
-
-							for ($p = $index; $p < strlen($text); $p++)
-							{
-							    $auxCharacter = substr($text, $p, 1);
-
-							    if ($auxCharacter != " ")
-							    {
-							        $auxArray[$auxIndex] = $auxCharacter;
-							        $auxIndex++;
-							    }
-							    else
-							        $p = strlen($text);
-							}
-
-							if (count($auxArray) > $length)
-							{
-							    for ($l = 0; $l < count($wordArray); $l++)		//copy the word until now to the line
-							    {
-								    $lineArray[$lineIndex] = $wordArray[$l];
-								    $lineIndex++;
-							    }
-
-							    unset($wordArray);								//and prepare to create a new word array
-							    $needToCreateWordArray = true;          //splitting one word in two (one half in one line, and the other half in the next line)
-						    }
-					    }
-					    else            //else, we just copy the current character to the word array
-					    {
-					  	    $wordArray[$wordIndex] = $currentCharacter;
-						    $wordIndex++;
-					    }
-				    }
-			    }
-		    }
-
-		    //in the end of the for, we copy the line array to the return array
-		    $retArray[$howManyLinesYet] = $lineArray;
-		    unset($lineArray);                  //and unset the line array, so we can create another one to the next line
-		    $howManyLinesYet += 1;		//then, we increments the number of lines
-		 }
-
-	    return $retArray;           //and return the return array
+	    return $retArray;							//and return it
 	}
 }
