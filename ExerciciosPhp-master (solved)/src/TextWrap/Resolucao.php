@@ -62,6 +62,9 @@ class Resolucao implements TextWrapInterface {
 	                        for ($j = 0; $j < count($lineArray); $j++)
 	                            $stringLine = $stringLine . $lineArray[$j];
 
+	                        if (substr($stringLine, (strlen($stringLine) - 1), 1) == " ")
+	                            $stringLine = substr($stringLine, 0, -1);
+
 	                        $retArray[$linesIndex] = $stringLine;		//we copy the finished line into the return array
 	                        $linesIndex++;
 	                        unset($lineArray);						//and create another line
@@ -77,6 +80,9 @@ class Resolucao implements TextWrapInterface {
 	                {
 	                    for ($j = 0; $j < count($lineArray); $j++)
 	                        $stringLine = $stringLine . $lineArray[$j];
+
+	                    if (substr($stringLine, (strlen($stringLine) - 1), 1) == " ")
+	                        $stringLine = substr($stringLine, 0, -1);
 
 	                    $retArray[$linesIndex] = $stringLine;		//we copy this 'finished' line to the return array
 	                    $linesIndex++;
@@ -102,9 +108,13 @@ class Resolucao implements TextWrapInterface {
 	    for ($j = 0; $j < count($lineArray); $j++)
 	        $stringLine = $stringLine . $lineArray[$j];
 
+	    if (substr($stringLine, (strlen($stringLine) - 1), 1) == " ")
+	        $stringLine = substr($stringLine, 0, -1);
+
 	    $retArray[$linesIndex] = $stringLine;		//in the end, we copy the last line into the return array
 	    $linesIndex++;
 	    return $retArray;							//and return it
 	}
+
 
 }
